@@ -26,15 +26,6 @@ class RainfallController extends Controller
         return Inertia::render('RainfallData', [
             'rainfalls' => $rainfalls,
             'filters' => $request->only(['start_date', 'end_date', 'per_page']),
-            
-            // --- WAJIB ADA AGAR SIDEBAR & LAYOUT MUNCUL ---
-            'auth' => [
-                'user' => auth()->user(),
-                'can' => [
-                    'view_rainfall' => auth()->user()->can('view rainfall'),
-                    'export_rainfall' => auth()->user()->can('export rainfall'),
-                ]
-            ]
         ]);
     }
 

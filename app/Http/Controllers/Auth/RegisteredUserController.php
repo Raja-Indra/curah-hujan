@@ -42,6 +42,9 @@ class RegisteredUserController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
+        // Assign default role 'staff' agar bisa akses dashboard
+        $user->assignRole('staff');
+
         event(new Registered($user));
 
         Auth::login($user);

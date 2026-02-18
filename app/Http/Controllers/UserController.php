@@ -23,15 +23,6 @@ class UserController extends Controller
         return Inertia::render('Users/Index', [
             'users' => $users,
             'available_roles' => $roles,
-            
-            // PENTING: Tambahkan array auth ini agar React tidak crash
-            'auth' => [
-                'user' => auth()->user(),
-                'can' => [
-                    'manage_users' => auth()->user()->can('manage users'),
-                    'manage_roles' => auth()->user()->can('manage roles'),
-                ]
-            ]
         ]);
     }
 

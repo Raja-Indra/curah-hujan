@@ -15,11 +15,11 @@ class RoleSeeder extends Seeder
         $adminRole = Role::create(['name' => 'admin']);
         $staffRole = Role::create(['name' => 'staff']);
 
-        // 2. Buat User Admin Default (Ganti email sesuai akun login Anda saat ini jika mau)
-        // Kita cari user pertama (Anda) dan jadikan admin
-        $user = User::first();
-        if($user) {
-            $user->assignRole('admin');
-        }
+        // 2. Assign Permission ke Role
+        // Admin dapat semua permission
+        $adminRole->givePermissionTo(Permission::all());
+
+        // Staff hanya dapat permission view
+        $staffRole->givePermissionTo(['view dashboard', 'view rainfall']);
     }
 }

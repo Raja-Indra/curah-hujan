@@ -12,19 +12,11 @@ export default function Sidebar() {
     // 1. Ambil Props dari Inertia
     const { url, props } = usePage();
     
-    // 2. Definisi Variable Auth (INI YANG TADI KURANG)
+    // 2. Definisi Variable Auth
     const { auth } = props;
     
     // 3. Definisi Variable Can (Izin), pakai fallback {} biar gak error kalau kosong
     const can = auth?.can || {};
-
-    // --- DEBUGGING (CEK CONSOLE BROWSER SETELAH SAVE INI) ---
-    console.log("=== DEBUG SIDEBAR ===");
-    console.log("1. User Login:", auth?.user?.name);
-    console.log("2. Role User:", auth?.user?.roles);
-    console.log("3. PERMISSION (CAN):", can); // <--- KITA CARI INI
-    console.log("=====================");
-    // -------------------------------------------------------
 
     const isActive = (route) => url.startsWith(route);
 
@@ -42,30 +34,41 @@ export default function Sidebar() {
             </div>
 
             {/* Menu Items */}
-            {/* HAPUS SEMUA LOGIKA 'can.xxx &&' UNTUK SEMENTARA */}
-<nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
-    <div className="text-xs font-bold text-gray-400 uppercase mb-2 px-4">Main Menu</div>
-    
-    <NavLink href="/dashboard" active={isActive('/dashboard')} icon={faChartPie}>
-        Dashboard
-    </NavLink>
-    
-    <NavLink href="/rainfall-data" active={isActive('/rainfall-data')} icon={faCloudShowersHeavy}>
-        Data Hujan
-    </NavLink>
+            <nav className="flex-1 px-4 py-6 space-y-2 overflow-y-auto">
+                <div className="text-xs font-bold text-gray-400 uppercase mb-2 px-4">Main Menu</div>
+                
+                {can.view_dashboard && (
+                    <NavLink href="/dashboard" active={isActive('/dashboard')} icon={faChartPie}>
+                        Dashboard
+                    </NavLink>
+                )}
+                
+                {can.view_rainfall && (
+                    <NavLink href="/rainfall-data" active={isActive('/rainfall-data')} icon={faCloudShowersHeavy}>
+                        Data Hujan
+                    </NavLink>
+                )}
 
-    <div className="pt-4 pb-2 px-4 text-xs font-bold text-gray-400 uppercase">
-        Administrasi
-    </div>
+                {(can.manage_users || can.manage_roles) && (
+                    <>
+                        <div className="pt-4 pb-2 px-4 text-xs font-bold text-gray-400 uppercase">
+                            Administrasi
+                        </div>
 
-    <NavLink href="/users" active={isActive('/users')} icon={faUsers}>
-        Users
-    </NavLink>
+                        {can.manage_users && (
+                            <NavLink href="/users" active={isActive('/users')} icon={faUsers}>
+                                Users
+                            </NavLink>
+                        )}
 
-    <NavLink href="/roles" active={isActive('/roles')} icon={faUserShield}>
-        Roles & Akses
-    </NavLink>
-</nav>
+                        {can.manage_roles && (
+                            <NavLink href="/roles" active={isActive('/roles')} icon={faUserShield}>
+                                Roles & Akses
+                            </NavLink>
+                        )}
+                    </>
+                )}
+            </nav>
 
             <div className="p-4 border-t border-gray-100 text-xs text-center text-gray-400 bg-gray-50">
                 &copy; PT Darma Henwa

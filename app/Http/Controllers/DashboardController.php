@@ -64,9 +64,6 @@ class DashboardController extends Controller
 
         // 5. Render Inertia
         return Inertia::render('Dashboard', [
-            'auth' => [
-                'user' => auth()->user(),
-            ],
             'summary' => [
                 'last_recorded' => $latest ? Carbon::parse($latest->recorded_at)->format('d M Y H:i:s') : 'Belum ada data',
                 'status' => $statusCuaca,

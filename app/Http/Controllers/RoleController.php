@@ -21,13 +21,6 @@ class RoleController extends Controller
         return Inertia::render('Roles/Index', [
             'roles' => $roles,
             'all_permissions' => $permissions,
-            'auth' => [
-                'user' => auth()->user(),
-                'can' => [
-                    'manage_roles' => auth()->user()->can('manage roles'),
-                    'manage_users' => auth()->user()->can('manage users'),
-                ]
-            ]
         ]);
     }
 

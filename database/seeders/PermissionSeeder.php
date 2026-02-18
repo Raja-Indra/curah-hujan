@@ -17,32 +17,20 @@ class PermissionSeeder extends Seeder
         $permissions = [
             // Dashboard
             'view dashboard',
-            
+
             // Data Hujan
             'view rainfall',
             'export rainfall',
-            
+
             // User Management
             'manage users', // Create, Edit, Delete User
-            
+
             // Role Management
             'manage roles', // Create, Edit, Delete Role
         ];
 
         foreach ($permissions as $permission) {
             Permission::firstOrCreate(['name' => $permission]);
-        }
-
-        // 3. Assign Permission ke Role Admin (Otomatis dapat semua)
-        $adminRole = Role::where('name', 'admin')->first();
-        if ($adminRole) {
-            $adminRole->syncPermissions($permissions);
-        }
-
-        // 4. Assign Permission Default ke Staff (Hanya lihat data)
-        $staffRole = Role::where('name', 'staff')->first();
-        if ($staffRole) {
-            $staffRole->syncPermissions(['view dashboard', 'view rainfall']);
         }
     }
 }
