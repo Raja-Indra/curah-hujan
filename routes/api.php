@@ -2,11 +2,12 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\RainfallController;
+use App\Http\Controllers\Api\RainfallController;
 
-Route::get('/user', function (Request $request) {
-    return $request->user();
-})->middleware('auth:sanctum');
+// Route Test (Bisa dibuka di browser: http://IP_LAPTOP:8000/api/test)
+Route::get('/test', function () {
+    return response()->json(['message' => 'API Berjalan!']);
+});
 
-// Jalur ESP8266 kirim data
-Route::post('/record-rainfall', [RainfallController::class, 'store']);
+// --- ROUTE UTAMA DARI ESP8266 ---
+Route::post('/rainfall', [RainfallController::class, 'store']);

@@ -8,7 +8,15 @@ use Illuminate\Database\Eloquent\Model;
 class Rainfall extends Model
 {
     use HasFactory;
+    protected $table = 'rainfalls';
 
-    // Izinkan semua kolom diisi
-    protected $guarded = [];
+    protected $fillable = [
+        'rainfall',    // Curah hujan (mm)
+        'constant',    // Nilai pertip
+        'cycle',       // Jumlah tip/cyclus
+        'event_id',    // ID Kejadian
+        'recorded_at', // Waktu pencatatan
+    ];
+
+    public $timestamps = true; 
 }

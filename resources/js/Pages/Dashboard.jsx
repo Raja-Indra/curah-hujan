@@ -74,12 +74,12 @@ export default function Dashboard({ auth, summary, chartData, activeFilter, devi
                         </div>
                         <div className="text-right">
                             <p className={`text-xs font-bold ${device_status.is_online ? 'text-green-700' : 'text-red-700'}`}>
-                                ESP8266 {device_status.is_online ? 'ONLINE' : 'OFFLINE'}
+                                ESP8266 {device_status.is_online ? 'READY' : 'UNPREPARED'}
                             </p>
-                            <div className="text-[10px] text-gray-500 flex items-center justify-end gap-1">
+                            {/* <div className="text-[10px] text-gray-500 flex items-center justify-end gap-1">
                                 <FontAwesomeIcon icon={faWifi} />
                                 {device_status.last_seen}
-                            </div>
+                            </div> */}
                         </div>
                     </div>
                 </div>
@@ -133,12 +133,12 @@ export default function Dashboard({ auth, summary, chartData, activeFilter, devi
                         </div>
 
                         <div className="z-10">
-                            <p className="text-gray-500 font-medium text-xs uppercase">Frekuensi Kejadian</p>
+                            <p className="text-gray-500 font-medium text-xs uppercase">EVENT HUJAN HARI INI</p>
                             <div className="flex items-baseline mt-1">
                                 <span className="text-4xl font-bold text-gray-800">{summary.event_count}</span>
                                 <span className="ml-1 text-lg text-gray-400">kali</span>
                             </div>
-                            <p className="text-[10px] text-gray-400 mt-1">Jumlah event hujan terpisah</p>
+                            <p className="text-[10px] text-gray-400 mt-1">Jumlah event hujan 24 jam terakhir</p>
                         </div>
                     </div>
                 </div>
