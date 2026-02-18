@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { usePage, Link } from '@inertiajs/react';
-// Opsional: Jika ingin icon chevron (panah bawah) pakai FontAwesome
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChevronDown, faUser, faSignOutAlt } from '@fortawesome/free-solid-svg-icons';
+import React, { useState } from "react";
+import { usePage, Link } from "@inertiajs/react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faChevronDown,
+    faUser,
+    faSignOutAlt,
+} from "@fortawesome/free-solid-svg-icons";
 
 export default function Header() {
     const { auth } = usePage().props;
@@ -11,7 +14,6 @@ export default function Header() {
 
     return (
         <header className="relative z-20 flex items-center justify-between h-16 px-6 bg-white border-b border-gray-200 shadow-sm">
-
             {/* Judul Halaman (Kiri) */}
             <div className="flex items-center">
                 <h2 className="hidden text-lg font-bold tracking-tight text-gray-800 md:block">
@@ -21,7 +23,6 @@ export default function Header() {
 
             {/* --- AREA USER (KANAN) --- */}
             <div className="relative">
-
                 {/* 1. TOMBOL PEMICU (TRIGGER) */}
                 {/* Saat diklik, ubah state !isDropdownOpen (True/False) */}
                 <button
@@ -35,8 +36,8 @@ export default function Header() {
                         <p className="text-xs text-gray-500 capitalize">
                             {/* Cek apakah roles ada isinya, jika ada ambil yang pertama. Jika tidak, tampilkan 'User' */}
                             {auth.user.roles && auth.user.roles.length > 0
-                                ? auth.user.roles[0].name.replace(/_/g, ' ')
-                                : 'User'}
+                                ? auth.user.roles[0].name.replace(/_/g, " ")
+                                : "User"}
                         </p>
                     </div>
 
@@ -48,7 +49,7 @@ export default function Header() {
                     {/* Icon Panah Kecil */}
                     <FontAwesomeIcon
                         icon={faChevronDown}
-                        className={`text-gray-400 text-xs transition-transform duration-200 ${isDropdownOpen ? 'rotate-180' : ''}`}
+                        className={`text-gray-400 text-xs transition-transform duration-200 ${isDropdownOpen ? "rotate-180" : ""}`}
                     />
                 </button>
 
@@ -63,7 +64,6 @@ export default function Header() {
 
                         {/* Kotak Menu */}
                         <div className="absolute right-0 z-20 w-48 py-2 mt-2 transition-all duration-100 ease-out origin-top-right transform bg-white border border-gray-100 shadow-xl rounded-xl">
-
                             <div className="px-4 py-2 mb-1 border-b border-gray-100">
                                 <span className="text-xs font-bold tracking-wider text-gray-400 uppercase">
                                     Akun Saya
@@ -72,11 +72,14 @@ export default function Header() {
 
                             {/* Menu Profile */}
                             <Link
-                                href={route('profile.edit')}
+                                href={route("profile.edit")}
                                 className="flex items-center px-4 py-2 text-sm text-gray-700 transition-colors hover:bg-blue-50 hover:text-blue-600"
                                 onClick={() => setIsDropdownOpen(false)} // Tutup menu saat diklik
                             >
-                                <FontAwesomeIcon icon={faUser} className="mr-3 text-gray-400" />
+                                <FontAwesomeIcon
+                                    icon={faUser}
+                                    className="mr-3 text-gray-400"
+                                />
                                 Profile User
                             </Link>
 
@@ -84,19 +87,21 @@ export default function Header() {
 
                             {/* Menu Logout */}
                             <Link
-                                href={route('logout')}
+                                href={route("logout")}
                                 method="post"
                                 as="button"
                                 className="flex items-center w-full px-4 py-2 text-sm text-left text-red-600 transition-colors hover:bg-red-50"
                                 onClick={() => setIsDropdownOpen(false)}
                             >
-                                <FontAwesomeIcon icon={faSignOutAlt} className="mr-3" />
+                                <FontAwesomeIcon
+                                    icon={faSignOutAlt}
+                                    className="mr-3"
+                                />
                                 Logout (Keluar)
                             </Link>
                         </div>
                     </>
                 )}
-
             </div>
         </header>
     );
