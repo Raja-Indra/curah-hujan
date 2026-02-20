@@ -241,12 +241,12 @@ export default function Dashboard({
                                 onClick={() => handleFilterChange("today")}
                             />
                             <FilterBtn
-                                label="Minggu"
+                                label="Minggu Ini"
                                 active={activeFilter === "week"}
                                 onClick={() => handleFilterChange("week")}
                             />
                             <FilterBtn
-                                label="Bulan"
+                                label="Bulan Ini"
                                 active={activeFilter === "month"}
                                 onClick={() => handleFilterChange("month")}
                             />

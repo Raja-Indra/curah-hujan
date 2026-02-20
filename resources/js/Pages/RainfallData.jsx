@@ -11,12 +11,16 @@ import {
 
 export default function RainfallData({ auth, rainfalls, filters }) {
     // --- STATE MANAGEMENT ---
+    const today = new Date();
+    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
+        .toISOString()
+        .split("T")[0];
+    const currentDay = today.toISOString().split("T")[0];
+
     const [startDate, setStartDate] = useState(
-        filters?.start_date || new Date().toISOString().split("T")[0],
+        filters?.start_date || firstDayOfMonth,
     );
-    const [endDate, setEndDate] = useState(
-        filters?.end_date || new Date().toISOString().split("T")[0],
-    );
+    const [endDate, setEndDate] = useState(filters?.end_date || currentDay);
     const [perPage, setPerPage] = useState(filters?.per_page || 20);
 
     // --- FUNGSI GANTI JUMLAH DATA (Per Page) ---
@@ -41,22 +45,45 @@ export default function RainfallData({ auth, rainfalls, filters }) {
         window.location.href = url;
     };
 
+    // --- LOGIKA PAGINATION 5 TOMBOL (Prev + 3 Halaman + Next) ---
+    let paginationLinks = [];
+    if (rainfalls?.links?.length > 0) {
+        const prevLink = rainfalls.links[0];
+        const nextLink = rainfalls.links[rainfalls.links.length - 1];
+
+        // 1. Ambil HANYA tombol angka (Buang prev, next, dan titik-titik "...")
+        const pageLinks = rainfalls.links.filter(
+            (link, index) =>
+                index !== 0 &&
+                index !== rainfalls.links.length - 1 &&
+                !link.label.includes("...")
+        );
+
+        // 2. Cari posisi halaman yang sedang aktif saat ini
+        const activeIndex = pageLinks.findIndex((link) => link.active);
+
+        // 3. Tentukan batas awal untuk 3 tombol yang akan ditampilkan
+        let startWindow = activeIndex - 1;
+        if (startWindow < 0) startWindow = 0; // Jika di halaman pertama
+        if (startWindow + 3 > pageLinks.length) {
+            startWindow = Math.max(0, pageLinks.length - 3); // Jika di halaman terakhir
+        }
+
+        // 4. Potong array menjadi 3 bagian saja
+        const visiblePages = pageLinks.slice(startWindow, startWindow + 3);
+
+        // 5. Gabungkan kembali: Prev + (3 Angka) + Next
+        paginationLinks = [prevLink, ...visiblePages, nextLink];
+    }
+
     return (
         <AuthenticatedLayout user={auth?.user} header={null}>
             <Head title="Data Riwayat Hujan" />
 
-            {/* --- CONTAINER UTAMA (PERBAIKAN LAYOUT DISINI) --- */}
-            {/* 1. w-full: Memaksa lebar penuh (menempel kiri-kanan).
-                2. p-2 sm:p-4: Padding tipis saja (agar tidak terlalu mepet, tapi tetap 'full').
-                3. flex flex-col h-full: Agar konten mengisi tinggi layar.
-            */}
             <div className="w-full h-full p-2 sm:p-4 flex flex-col space-y-4">
-                {/* KARTU KONTEN */}
-                {/* flex-1 agar mengisi sisa ruang ke bawah */}
                 <div className="bg-white shadow-sm rounded-xl overflow-hidden border border-gray-200 flex flex-col flex-1">
                     {/* --- HEADER ATAS --- */}
                     <div className="p-4 bg-gray-50 border-b border-gray-200 flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-                        {/* KIRI: Judul Tabel */}
                         <div className="flex items-center space-x-3 mb-2 lg:mb-0">
                             <div className="p-2 bg-blue-100 rounded-lg text-blue-600 shadow-sm">
                                 <FontAwesomeIcon
@@ -69,12 +96,11 @@ export default function RainfallData({ auth, rainfalls, filters }) {
                                     Data Riwayat
                                 </h3>
                                 <p className="text-xs text-gray-500">
-                                    Laporan sensor realtime
+                                    Laporan Detail Riwayat Curah Hujan
                                 </p>
                             </div>
                         </div>
 
-                        {/* KANAN: Filter & Export */}
                         <div className="flex flex-col sm:flex-row gap-2 w-full lg:w-auto">
                             {/* Filter Tanggal */}
                             <div className="flex items-center bg-white border border-gray-300 rounded-lg overflow-hidden w-full sm:w-auto shadow-sm">
@@ -90,7 +116,7 @@ export default function RainfallData({ auth, rainfalls, filters }) {
                                     className="border-none focus:ring-0 text-xs sm:text-sm py-2 px-2 w-full sm:w-32 text-gray-600"
                                 />
                                 <span className="bg-gray-100 border-x border-gray-300 px-2 py-2 text-xs text-gray-500">
-                                    -
+                                    s/d
                                 </span>
                                 <input
                                     type="date"
@@ -106,12 +132,12 @@ export default function RainfallData({ auth, rainfalls, filters }) {
                                 className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 shadow-sm transition-all text-sm font-medium flex items-center justify-center gap-2 whitespace-nowrap"
                             >
                                 <FontAwesomeIcon icon={faFileExcel} />
-                                <span>Export</span>
+                                <span>Export Excel</span>
                             </button>
                         </div>
                     </div>
 
-                    {/* --- TABEL DATA (ISI PENUH) --- */}
+                    {/* --- TABEL DATA --- */}
                     <div className="overflow-x-auto w-full flex-1">
                         <table className="min-w-full divide-y divide-gray-200">
                             <thead className="bg-white sticky top-0 z-10 shadow-sm">
@@ -125,7 +151,6 @@ export default function RainfallData({ auth, rainfalls, filters }) {
                                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap bg-gray-50">
                                         Curah Hujan
                                     </th>
-
                                     <th className="px-6 py-3 text-left text-xs font-bold text-gray-500 uppercase tracking-wider whitespace-nowrap bg-gray-50">
                                         Tip Count
                                     </th>
@@ -179,7 +204,7 @@ export default function RainfallData({ auth, rainfalls, filters }) {
                                 ) : (
                                     <tr>
                                         <td
-                                            colSpan="4"
+                                            colSpan="5"
                                             className="px-6 py-10 text-center text-gray-400"
                                         >
                                             Tidak ada data ditemukan.
@@ -192,12 +217,11 @@ export default function RainfallData({ auth, rainfalls, filters }) {
 
                     {/* --- FOOTER PAGINATION --- */}
                     <div className="px-4 py-3 bg-gray-50 border-t border-gray-200 flex flex-col sm:flex-row items-center justify-between gap-4">
-                        {/* Kiri: Limit & Info */}
                         <div className="flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
                             <div className="text-xs text-gray-500 text-center sm:text-left">
                                 Show{" "}
                                 <span className="font-bold">
-                                    {rainfalls.from}-{rainfalls.to}
+                                    {rainfalls.from || 0}-{rainfalls.to || 0}
                                 </span>{" "}
                                 of {rainfalls.total}
                             </div>
@@ -219,18 +243,18 @@ export default function RainfallData({ auth, rainfalls, filters }) {
                             </div>
                         </div>
 
-                        {/* Kanan: Pagination */}
+                        {/* Kanan: Pagination (Maksimal 5 Tombol) */}
                         <div className="flex space-x-1 overflow-x-auto max-w-full pb-1 sm:pb-0">
-                            {rainfalls.links.map((link, index) => {
+                            {paginationLinks.map((link, index) => {
                                 const isLinkActive = link.active;
                                 const isLinkDisabled = !link.url;
                                 const baseClasses =
-                                    "px-2 sm:px-3 py-1 text-xs font-medium rounded-md border transition-colors duration-150 whitespace-nowrap";
+                                    "px-3 py-1.5 text-xs font-medium rounded-md border transition-colors duration-150 whitespace-nowrap min-w-[36px] text-center flex items-center justify-center";
 
                                 if (isLinkDisabled) {
                                     return (
                                         <span
-                                            key={index}
+                                            key={`disabled-${index}`}
                                             dangerouslySetInnerHTML={{
                                                 __html: link.label,
                                             }}
@@ -240,7 +264,7 @@ export default function RainfallData({ auth, rainfalls, filters }) {
                                 }
                                 return (
                                     <Link
-                                        key={index}
+                                        key={`link-${index}`}
                                         href={link.url}
                                         data={{
                                             per_page: perPage,
@@ -250,7 +274,11 @@ export default function RainfallData({ auth, rainfalls, filters }) {
                                         dangerouslySetInnerHTML={{
                                             __html: link.label,
                                         }}
-                                        className={`${baseClasses} ${isLinkActive ? "bg-blue-600 text-white border-blue-600 shadow-sm" : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300"}`}
+                                        className={`${baseClasses} ${
+                                            isLinkActive
+                                                ? "bg-blue-600 text-white border-blue-600 shadow-sm"
+                                                : "bg-white text-gray-600 border-gray-300 hover:bg-gray-50 hover:text-blue-600 hover:border-blue-300"
+                                        }`}
                                     />
                                 );
                             })}

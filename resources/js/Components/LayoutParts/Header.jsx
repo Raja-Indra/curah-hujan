@@ -17,7 +17,7 @@ export default function Header() {
             {/* Judul Halaman (Kiri) */}
             <div className="flex items-center">
                 <h2 className="hidden text-lg font-bold tracking-tight text-gray-800 md:block">
-                    Sistem Monitoring
+                    Sistem Monitoring Curah Hujan KCP
                 </h2>
             </div>
 
