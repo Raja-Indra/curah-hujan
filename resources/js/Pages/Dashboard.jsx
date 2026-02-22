@@ -180,7 +180,7 @@ export default function Dashboard({
                                 </span>
                             </div>
                             <p className="text-[10px] text-gray-400 mt-1">
-                                Akumulasi hujan 24 jam terakhir
+                                Jumlah Curah hujan 24 jam terakhir
                             </p>
                         </div>
                     </div>

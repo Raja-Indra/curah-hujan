@@ -8,6 +8,7 @@ import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Toaster, toast } from "react-hot-toast";
 import {
     faUserShield,
     faPlus,
@@ -22,6 +23,12 @@ import {
 export default function RoleIndex({ auth = {}, roles, all_permissions }) {
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+
+    const [confirmDialog, setConfirmDialog] = useState({
+        isOpen: false,
+        type: "", // 'add', 'update', atau 'delete'
+        data: null, // Menyimpan data role jika sedang menghapus
+    });
 
     // Form Inertia
     const {
@@ -79,40 +86,63 @@ export default function RoleIndex({ auth = {}, roles, all_permissions }) {
     };
 
     // 2. Perbaiki pengiriman parameter pada route
+    // Membuka modal konfirmasi untuk Tambah/Update
     const handleSubmit = (e) => {
         e.preventDefault();
+        setConfirmDialog({
+            isOpen: true,
+            type: isEditing ? "update" : "add",
+            data: null,
+        });
+    };
 
-        if (isEditing) {
-            // Kita gunakan POST tapi tambahkan _method agar Laravel membacanya sebagai PUT
-            // Ini adalah cara paling stabil untuk menghindari MethodNotAllowed
-            post(route("roles.update", data.id), {
-                _method: "put", // Spoofing method
+    // Membuka modal konfirmasi untuk Hapus
+    const handleDelete = (role) => {
+        if (role.name === "admin") {
+            toast.error("Akses Ditolak: Role Admin tidak boleh dihapus!");
+            return;
+        }
+        setConfirmDialog({
+            isOpen: true,
+            type: "delete",
+            data: role,
+        });
+    };
+
+    const executeAction = () => {
+        // --- JIKA HAPUS DATA ---
+        if (confirmDialog.type === "delete") {
+            destroy(route("roles.destroy", confirmDialog.data.id), {
                 onSuccess: () => {
-                    setShowModal(false);
-                    reset();
-                },
-                onError: (err) => {
-                    console.error("Detail Error:", err);
+                    setConfirmDialog({ isOpen: false, type: "", data: null });
+                    toast.success("Data role berhasil dihapus!");
                 },
                 preserveScroll: true,
             });
-        } else {
-            post(route("roles.store"), {
+        }
+        // --- JIKA UPDATE DATA ---
+        else if (confirmDialog.type === "update") {
+            // Ubah 'post' menjadi 'put', dan hapus baris _method: "put"
+            put(route("roles.update", data.id), {
                 onSuccess: () => {
+                    setConfirmDialog({ isOpen: false, type: "", data: null });
                     setShowModal(false);
                     reset();
+                    toast.success("Data role berhasil diperbarui!");
                 },
+                preserveScroll: true,
             });
         }
-    };
-
-    const handleDelete = (role) => {
-        if (role.name === "admin") {
-            alert("Role Admin sistem tidak boleh dihapus!");
-            return;
-        }
-        if (confirm(`Yakin ingin menghapus role "${role.name}"?`)) {
-            destroy(route("roles.destroy", role.id));
+        // --- JIKA TAMBAH DATA ---
+        else if (confirmDialog.type === "add") {
+            post(route("roles.store"), {
+                onSuccess: () => {
+                    setConfirmDialog({ isOpen: false, type: "", data: null });
+                    setShowModal(false);
+                    reset();
+                    toast.success("Role baru berhasil ditambahkan!");
+                },
+            });
         }
     };
 
@@ -178,14 +208,7 @@ export default function RoleIndex({ auth = {}, roles, all_permissions }) {
                                         >
                                             <td className="px-6 py-4 whitespace-nowrap">
                                                 <div className="flex items-center">
-                                                    <div
-                                                        className={`h-8 w-8 rounded-full flex items-center justify-center mr-3 border ${
-                                                            role.name ===
-                                                            "admin"
-                                                                ? "bg-purple-100 text-purple-600 border-purple-200"
-                                                                : "bg-blue-50 text-blue-500 border-blue-100"
-                                                        }`}
-                                                    >
+                                                    <div className="h-8 w-8 rounded-full flex items-center justify-center mr-3 border bg-purple-100 text-purple-600 border-purple-200">
                                                         <FontAwesomeIcon
                                                             icon={faShieldAlt}
                                                         />
@@ -194,18 +217,6 @@ export default function RoleIndex({ auth = {}, roles, all_permissions }) {
                                                         <span className="text-sm font-bold text-gray-900 capitalize block">
                                                             {role.name}
                                                         </span>
-                                                        {/* {role.name ===
-                                                            "admin" && (
-                                                            <span className="text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200 font-semibold">
-                                                                Super Admin
-                                                            </span>
-                                                        )}
-                                                        {role.name ===
-                                                            "staff" && (
-                                                            <span className="text-[10px] text-purple-700 bg-purple-50 px-1.5 py-0.5 rounded border border-purple-200 font-semibold">
-                                                                Karyawan
-                                                            </span>
-                                                        )} */}
                                                     </div>
                                                 </div>
                                             </td>
@@ -447,6 +458,72 @@ export default function RoleIndex({ auth = {}, roles, all_permissions }) {
                     </form>
                 </Modal>
             </div>
+            {/* LETAKKAN TOASTER DI SINI (Untuk Notifikasi Pojok Layar) */}
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 3000, // Hilang otomatis dalam 3 detik
+                    style: {
+                        borderRadius: "10px",
+                        background: "#333",
+                        color: "#fff",
+                    },
+                }}
+            />
+
+            {/* MODAL KONFIRMASI KUSTOM (Ganti SweetAlert) */}
+            <Modal
+                show={confirmDialog.isOpen}
+                onClose={() =>
+                    setConfirmDialog({ isOpen: false, type: "", data: null })
+                }
+                maxWidth="sm"
+            >
+                <div className="p-6">
+                    <h2 className="text-lg font-bold text-gray-900 mb-2">
+                        {confirmDialog.type === "delete"
+                            ? "Konfirmasi Hapus Data"
+                            : confirmDialog.type === "update"
+                              ? "Simpan Perubahan?"
+                              : "Tambah Role Baru?"}
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-6">
+                        {confirmDialog.type === "delete"
+                            ? `Apakah Anda yakin ingin menghapus role "${confirmDialog.data?.name}" secara permanen? Data yang dihapus tidak dapat dikembalikan.`
+                            : "Apakah Anda yakin ingin menyimpan pengaturan role dan hak akses ini ke dalam sistem?"}
+                    </p>
+
+                    <div className="flex justify-end gap-3">
+                        <SecondaryButton
+                            onClick={() =>
+                                setConfirmDialog({
+                                    isOpen: false,
+                                    type: "",
+                                    data: null,
+                                })
+                            }
+                        >
+                            Batal
+                        </SecondaryButton>
+
+                        <PrimaryButton
+                            onClick={executeAction}
+                            disabled={processing}
+                            className={
+                                confirmDialog.type === "delete"
+                                    ? "bg-red-600 hover:bg-red-700"
+                                    : "bg-blue-600 hover:bg-blue-700"
+                            }
+                        >
+                            {processing
+                                ? "Memproses..."
+                                : confirmDialog.type === "delete"
+                                  ? "Ya, Hapus!"
+                                  : "Ya, Simpan!"}
+                        </PrimaryButton>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

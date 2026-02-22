@@ -8,6 +8,7 @@ import InputError from "@/Components/InputError";
 import PrimaryButton from "@/Components/PrimaryButton";
 import SecondaryButton from "@/Components/SecondaryButton";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { Toaster, toast } from "react-hot-toast";
 import {
     faUsers,
     faPlus,
@@ -29,6 +30,12 @@ export default function UserIndex({
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [search, setSearch] = useState("");
+
+    const [confirmDialog, setConfirmDialog] = useState({
+        isOpen: false,
+        type: "", // 'add', 'update', atau 'delete'
+        data: null,
+    });
 
     // Form Inertia
     const {
@@ -71,19 +78,54 @@ export default function UserIndex({
         setShowModal(true);
     };
 
+    // --- BUKA MODAL KONFIRMASI SIMPAN/UPDATE ---
     const handleSubmit = (e) => {
         e.preventDefault();
-        const routeName = isEditing ? "users.update" : "users.store";
-        const action = isEditing ? put : post;
-
-        action(route(routeName, isEditing ? data.id : undefined), {
-            onSuccess: () => setShowModal(false),
+        setConfirmDialog({
+            isOpen: true,
+            type: isEditing ? "update" : "add",
+            data: null,
         });
     };
 
+    // --- BUKA MODAL KONFIRMASI HAPUS ---
     const handleDelete = (user) => {
-        if (confirm(`Yakin ingin menghapus user ${user.name}?`)) {
-            destroy(route("users.destroy", user.id));
+        setConfirmDialog({
+            isOpen: true,
+            type: "delete",
+            data: user,
+        });
+    };
+
+    // --- EKSEKUSI AKSI KE BACKEND ---
+    const executeAction = () => {
+        if (confirmDialog.type === "delete") {
+            destroy(route("users.destroy", confirmDialog.data.id), {
+                onSuccess: () => {
+                    setConfirmDialog({ isOpen: false, type: "", data: null });
+                    toast.success("Data user berhasil dihapus!");
+                },
+                preserveScroll: true,
+            });
+        } else if (confirmDialog.type === "update") {
+            put(route("users.update", data.id), {
+                onSuccess: () => {
+                    setConfirmDialog({ isOpen: false, type: "", data: null });
+                    setShowModal(false);
+                    reset();
+                    toast.success("Informasi user berhasil diperbarui!");
+                },
+                preserveScroll: true,
+            });
+        } else if (confirmDialog.type === "add") {
+            post(route("users.store"), {
+                onSuccess: () => {
+                    setConfirmDialog({ isOpen: false, type: "", data: null });
+                    setShowModal(false);
+                    reset();
+                    toast.success("User baru berhasil ditambahkan!");
+                },
+            });
         }
     };
 
@@ -180,30 +222,13 @@ export default function UserIndex({
                                                 {/* Kolom Nama & Email */}
                                                 <td className="px-6 py-4 whitespace-nowrap">
                                                     <div className="flex items-center">
-                                                        {/* Avatar Premium */}
-                                                        <div
-                                                            className={`h-10 w-10 rounded-full flex items-center justify-center mr-4 shadow-sm border ${
-                                                                isAdmin
-                                                                    ? "bg-gradient-to-br from-purple-500 to-indigo-600 text-white border-transparent"
-                                                                    : "bg-blue-50 text-blue-500 border-blue-100"
-                                                            }`}
-                                                        >
-                                                            {isAdmin ? (
-                                                                <FontAwesomeIcon
-                                                                    icon={
-                                                                        faCrown
-                                                                    }
-                                                                    size="sm"
-                                                                />
-                                                            ) : (
-                                                                <span className="font-bold text-sm">
-                                                                    {user.name
-                                                                        .charAt(
-                                                                            0,
-                                                                        )
-                                                                        .toUpperCase()}
-                                                                </span>
-                                                            )}
+                                                        {/* Avatar */}
+                                                        <div className="h-10 w-10 rounded-full flex items-center justify-center mr-4 shadow-sm border bg-blue-50 text-blue-500 border-blue-100">
+                                                            <span className="font-bold text-sm">
+                                                                {user.name
+                                                                    .charAt(0)
+                                                                    .toUpperCase()}
+                                                            </span>
                                                         </div>
                                                         <div>
                                                             <div className="text-sm font-bold text-gray-900">
@@ -373,7 +398,7 @@ export default function UserIndex({
                                             setData("name", e.target.value)
                                         }
                                         className="pl-10 block w-full"
-                                        placeholder="Nama Staff"
+                                        placeholder="Nama"
                                         required
                                     />
                                 </div>
@@ -401,7 +426,7 @@ export default function UserIndex({
                                             setData("email", e.target.value)
                                         }
                                         className="pl-10 block w-full"
-                                        placeholder="email@perusahaan.com"
+                                        placeholder="user@gmail.com"
                                         required
                                     />
                                 </div>
@@ -413,28 +438,43 @@ export default function UserIndex({
 
                             {/* Role Selection */}
                             <div>
-                                <InputLabel
-                                    htmlFor="role"
-                                    value="Role / Jabatan"
-                                />
-                                <div className="relative mt-1">
-                                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
-                                        <FontAwesomeIcon icon={faIdCard} />
-                                    </div>
-                                    <select
-                                        id="role"
-                                        value={data.role}
-                                        onChange={(e) =>
-                                            setData("role", e.target.value)
-                                        }
-                                        className="pl-10 block w-full border-gray-300 focus:border-blue-500 focus:ring-blue-500 rounded-md shadow-sm"
-                                    >
-                                        {available_roles.map((role) => (
-                                            <option key={role} value={role}>
-                                                {role.toUpperCase()}
-                                            </option>
-                                        ))}
-                                    </select>
+                                <InputLabel value="Role / Jabatan" className="mb-3" />
+                                
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                                    {available_roles.map((role) => {
+                                        // Cek apakah role ini sedang dipilih
+                                        const isSelected = data.role === role;
+                                        
+                                        return (
+                                            <button
+                                                type="button" // Sangat penting agar tidak mensubmit form
+                                                key={role}
+                                                onClick={() => setData("role", role)}
+                                                className={`relative flex flex-col items-center justify-center p-4 rounded-xl border text-sm transition-all duration-200 focus:outline-none overflow-hidden ${
+                                                    isSelected
+                                                        ? "border-blue-500 bg-blue-50 text-blue-800 ring-1 ring-blue-500 shadow-sm"
+                                                        : "border-gray-200 bg-white text-gray-500 hover:border-blue-300 hover:bg-gray-50 hover:text-gray-700"
+                                                }`}
+                                            >
+                                                {/* Ikon disamaratakan menggunakan faIdCard untuk semua role */}
+                                                <FontAwesomeIcon
+                                                    icon={faIdCard}
+                                                    className={`mb-2 text-xl transition-colors ${
+                                                        isSelected ? "text-blue-600" : "text-gray-400"
+                                                    }`}
+                                                />
+                                                
+                                                <span className="font-bold capitalize tracking-wide text-[13px]">
+                                                    {role}
+                                                </span>
+                                                
+                                                {/* Indikator Checkmark di pojok kanan atas saat dipilih */}
+                                                <div className={`absolute top-2 right-2 transition-opacity duration-200 ${isSelected ? "opacity-100 text-blue-600" : "opacity-0"}`}>
+                                                    <FontAwesomeIcon icon={faCheckCircle} size="sm" />
+                                                </div>
+                                            </button>
+                                        );
+                                    })}
                                 </div>
                                 <InputError
                                     message={errors.role}
@@ -510,6 +550,71 @@ export default function UserIndex({
                     </form>
                 </Modal>
             </div>
+            <Toaster
+                position="top-right"
+                toastOptions={{
+                    duration: 3000,
+                    style: {
+                        borderRadius: "10px",
+                        background: "#333",
+                        color: "#fff",
+                    },
+                }}
+            />
+
+            {/* 2. MODAL KONFIRMASI */}
+            <Modal
+                show={confirmDialog.isOpen}
+                onClose={() =>
+                    setConfirmDialog({ isOpen: false, type: "", data: null })
+                }
+                maxWidth="sm"
+            >
+                <div className="p-6">
+                    <h2 className="text-lg font-bold text-gray-900 mb-2">
+                        {confirmDialog.type === "delete"
+                            ? "Konfirmasi Hapus User"
+                            : confirmDialog.type === "update"
+                              ? "Simpan Perubahan?"
+                              : "Buat User Baru?"}
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-6">
+                        {confirmDialog.type === "delete"
+                            ? `Apakah Anda yakin ingin menghapus akun pengguna "${confirmDialog.data?.name}" secara permanen? Tindakan ini tidak dapat dibatalkan.`
+                            : "Apakah Anda yakin data pengguna yang dimasukkan sudah benar dan ingin menyimpannya ke dalam sistem?"}
+                    </p>
+
+                    <div className="flex justify-end gap-3">
+                        <SecondaryButton
+                            onClick={() =>
+                                setConfirmDialog({
+                                    isOpen: false,
+                                    type: "",
+                                    data: null,
+                                })
+                            }
+                        >
+                            Batal
+                        </SecondaryButton>
+
+                        <PrimaryButton
+                            onClick={executeAction}
+                            disabled={processing}
+                            className={
+                                confirmDialog.type === "delete"
+                                    ? "bg-red-600 hover:bg-red-700 focus:bg-red-700 active:bg-red-900"
+                                    : "bg-blue-600 hover:bg-blue-700 focus:bg-blue-700 active:bg-blue-900"
+                            }
+                        >
+                            {processing
+                                ? "Memproses..."
+                                : confirmDialog.type === "delete"
+                                  ? "Ya, Hapus!"
+                                  : "Ya, Simpan!"}
+                        </PrimaryButton>
+                    </div>
+                </div>
+            </Modal>
         </AuthenticatedLayout>
     );
 }

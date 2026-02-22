@@ -32,7 +32,7 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => ['required', 'confirmed', Rules\Password::defaults()],
-            'role' => 'required|exists:roles,name' // Validasi role
+            'role' => 'required|exists:roles,name' 
         ]);
 
         $user = User::create([
@@ -44,7 +44,7 @@ class UserController extends Controller
         // Assign Role Spatie
         $user->assignRole($request->role);
 
-        return redirect()->back()->with('success', 'User berhasil dibuat.');
+        return redirect()->back();
     }
 
     public function update(Request $request, User $user)
@@ -71,17 +71,17 @@ class UserController extends Controller
         // Sinkronisasi Role (Ganti role lama dengan yang baru)
         $user->syncRoles($request->role);
 
-        return redirect()->back()->with('success', 'User berhasil diperbarui.');
+        return redirect()->back();
     }
 
     public function destroy(User $user)
     {
         // Cegah hapus diri sendiri (opsional tapi disarankan)
         if (auth()->id() === $user->id) {
-            return redirect()->back()->with('error', 'Anda tidak bisa menghapus akun sendiri.');
+            return redirect()->back();
         }
         
         $user->delete();
-        return redirect()->back()->with('success', 'User berhasil dihapus.');
+        return redirect()->back();
     }
 }

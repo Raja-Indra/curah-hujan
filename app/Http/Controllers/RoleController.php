@@ -43,7 +43,7 @@ class RoleController extends Controller
             }
         });
 
-        return redirect()->back()->with('success', 'Role berhasil dibuat.');
+        return redirect()->back();
     }
 
     public function update(Request $request, $id)
@@ -56,7 +56,7 @@ class RoleController extends Controller
         ]);
 
         if ($role->name === 'admin') {
-            return redirect()->back()->with('error', 'Role Admin tidak bisa diubah.');
+            return redirect()->back();
         }
 
         \Illuminate\Support\Facades\DB::transaction(function () use ($request, $role) {
@@ -68,7 +68,7 @@ class RoleController extends Controller
             $role->syncPermissions($request->permissions ?? []);
         });
 
-        return redirect()->route('roles.index')->with('success', 'Role berhasil diperbarui.');
+        return redirect()->route('roles.index');
     }
 
     public function destroy($id)
@@ -76,12 +76,12 @@ class RoleController extends Controller
         $role = \Spatie\Permission\Models\Role::findOrFail($id);
 
         if ($role->name === 'admin') {
-            return redirect()->route('roles.index')->with('error', 'Role Admin tidak bisa dihapus.');
+            return redirect()->route('roles.index');
         }
 
         $role->delete();
 
         // Paksa kembali ke halaman index
-        return redirect()->route('roles.index')->with('success', 'Role berhasil dihapus.');
+        return redirect()->route('roles.index');
     }
 }

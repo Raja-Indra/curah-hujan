@@ -34,7 +34,7 @@ class DashboardController extends Controller
         $todayEvents = Rainfall::whereDate('recorded_at', Carbon::today())->max('event_id') ?? 0;
 
         // Logika Status Cuaca
-        $statusCuaca = 'AMAN TERKENDALI'; // Sesuaikan dengan text di React
+        $statusCuaca = 'CERAH'; // Sesuaikan dengan text di React
         if ($latest && $latest->rainfall > 0 && Carbon::parse($latest->recorded_at)->diffInMinutes(now()) <= 10) {
             $statusCuaca = 'HUJAN';
         }

@@ -11,16 +11,10 @@ import {
 
 export default function RainfallData({ auth, rainfalls, filters }) {
     // --- STATE MANAGEMENT ---
-    const today = new Date();
-    const firstDayOfMonth = new Date(today.getFullYear(), today.getMonth(), 2)
-        .toISOString()
-        .split("T")[0];
-    const currentDay = today.toISOString().split("T")[0];
-
-    const [startDate, setStartDate] = useState(
-        filters?.start_date || firstDayOfMonth,
-    );
-    const [endDate, setEndDate] = useState(filters?.end_date || currentDay);
+// --- STATE MANAGEMENT ---
+    // Default disetel ke kosong ("") agar menampilkan semua data
+    const [startDate, setStartDate] = useState(filters?.start_date || "");
+    const [endDate, setEndDate] = useState(filters?.end_date || "");
     const [perPage, setPerPage] = useState(filters?.per_page || 20);
 
     // --- FUNGSI GANTI JUMLAH DATA (Per Page) ---

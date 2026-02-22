@@ -12,20 +12,35 @@ class RainfallController extends Controller
 {
     public function index(Request $request)
     {
-        // 1. Ambil filter dari request
-        $start_date = $request->start_date ?? now()->toDateString();
-        $end_date = $request->end_date ?? now()->toDateString();
+        // 1. Ambil filter dari request (Biarkan kosong jika tidak ada request)
+        $start_date = $request->start_date; 
+        $end_date = $request->end_date;
         $per_page = $request->per_page ?? 20;
 
-        // 2. Query data berdasarkan rentang tanggal
-        $rainfalls = \App\Models\Rainfall::whereBetween('recorded_at', [$start_date . ' 00:00:00', $end_date . ' 23:59:59'])
-            ->latest()
+        // 2. Siapkan Query Dasar
+        $query = \App\Models\Rainfall::query();
+
+        // 3. JIKA start_date dan end_date ada (User memilih dari kalender), barulah difilter
+        if ($start_date && $end_date) {
+            $query->whereBetween('recorded_at', [
+                $start_date . ' 00:00:00', 
+                $end_date . ' 23:59:59'
+            ]);
+        }
+
+        // 4. Eksekusi query dengan urutan terbaru ke terlama & Pagination
+        $rainfalls = $query->latest('recorded_at') 
             ->paginate($per_page)
             ->withQueryString();
 
+        // 5. Kirim ke React
         return Inertia::render('RainfallData', [
             'rainfalls' => $rainfalls,
-            'filters' => $request->only(['start_date', 'end_date', 'per_page']),
+            'filters' => [
+                'start_date' => $start_date,
+                'end_date'   => $end_date,
+                'per_page'   => $per_page
+            ],
         ]);
     }
 
