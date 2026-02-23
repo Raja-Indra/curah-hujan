@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import AuthenticatedLayout from "@/Layouts/AuthenticatedLayout";
 import { Head, Link, router } from "@inertiajs/react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -11,11 +11,25 @@ import {
 
 export default function RainfallData({ auth, rainfalls, filters }) {
     // --- STATE MANAGEMENT ---
-// --- STATE MANAGEMENT ---
+
+    
     // Default disetel ke kosong ("") agar menampilkan semua data
     const [startDate, setStartDate] = useState(filters?.start_date || "");
     const [endDate, setEndDate] = useState(filters?.end_date || "");
     const [perPage, setPerPage] = useState(filters?.per_page || 20);
+
+    // --- FITUR AUTO REFRESH (Setiap 30 Detik) ---
+    useEffect(() => {
+        const interval = setInterval(() => {
+            router.reload({
+                only: ['rainfalls'], 
+                preserveScroll: true, 
+                preserveState: true, 
+            });
+        }, 30000); // 30000 ms
+
+        return () => clearInterval(interval);
+    }, []);
 
     // --- FUNGSI GANTI JUMLAH DATA (Per Page) ---
     const handlePerPageChange = (e) => {

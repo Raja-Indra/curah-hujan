@@ -38,8 +38,14 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     // --- GROUP 2: KHUSUS ADMIN (Hanya yang punya izin 'manage users') ---
     // Pindahkan Users dan Roles ke dalam sini agar user biasa tidak bisa "nembak" URL
+    // Grup khusus untuk halaman Users
     Route::middleware(['can:manage users'])->group(function () {
         Route::resource('users', UserController::class);
+    });
+
+    // Grup khusus untuk halaman Roles
+    // Pastikan nama permission 'manage roles' ini sama persis dengan yang ada di database Anda
+    Route::middleware(['can:manage roles'])->group(function () {
         Route::resource('roles', RoleController::class);
     });
 
