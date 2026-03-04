@@ -18,11 +18,20 @@ import {
     faCheckCircle,
     faLock,
     faCheck,
+    faEye,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function RoleIndex({ auth = {}, roles, all_permissions }) {
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
+
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [viewData, setViewData] = useState(null);
+
+    const openViewModal = (role) => {
+        setViewData(role);
+        setShowViewModal(true);
+    };
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -273,6 +282,19 @@ export default function RoleIndex({ auth = {}, roles, all_permissions }) {
                                                     <div className="flex justify-end gap-3">
                                                         <button
                                                             onClick={() =>
+                                                                openViewModal(
+                                                                    role,
+                                                                )
+                                                            }
+                                                            className="text-blue-500 hover:text-blue-700 transition-colors bg-blue-50 p-2 rounded-lg hover:bg-blue-100 border border-transparent hover:border-blue-200"
+                                                            title="Lihat Role"
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={faEye}
+                                                            />
+                                                        </button>
+                                                        <button
+                                                            onClick={() =>
                                                                 openEditModal(
                                                                     role,
                                                                 )
@@ -298,6 +320,19 @@ export default function RoleIndex({ auth = {}, roles, all_permissions }) {
                                                     </div>
                                                 ) : (
                                                     <span className="text-xs text-gray-400 italic pr-2 flex items-center justify-end gap-1">
+                                                        <button
+                                                            onClick={() =>
+                                                                openViewModal(
+                                                                    role,
+                                                                )
+                                                            }
+                                                            className="text-blue-500 hover:text-blue-700 transition-colors bg-blue-50 p-2 rounded-lg hover:bg-blue-100 border border-transparent hover:border-blue-200 mr-2"
+                                                            title="Lihat Role"
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={faEye}
+                                                            />
+                                                        </button>
                                                         <FontAwesomeIcon
                                                             icon={faLock}
                                                         />
@@ -521,6 +556,74 @@ export default function RoleIndex({ auth = {}, roles, all_permissions }) {
                                   ? "Ya, Hapus!"
                                   : "Ya, Simpan!"}
                         </PrimaryButton>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* MODAL VIEW ROLE */}
+            <Modal show={showViewModal} onClose={() => setShowViewModal(false)}>
+                <div className="p-6">
+                    <div className="flex items-center justify-between mb-6 border-b pb-4">
+                        <h2 className="text-lg font-bold text-gray-900">
+                            Detail Informasi Role
+                        </h2>
+                        <button
+                            type="button"
+                            onClick={() => setShowViewModal(false)}
+                            className="text-gray-400 hover:text-gray-600"
+                        >
+                            <span className="sr-only">Close</span>
+                            <svg
+                                className="h-6 w-6"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                                stroke="currentColor"
+                            >
+                                <path
+                                    strokeLinecap="round"
+                                    strokeLinejoin="round"
+                                    strokeWidth="2"
+                                    d="M6 18L18 6M6 6l12 12"
+                                />
+                            </svg>
+                        </button>
+                    </div>
+
+                    {viewData && (
+                        <div className="space-y-6">
+                            <div>
+                                <InputLabel value="Nama Role (Jabatan)" />
+                                <div className="mt-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 capitalize font-medium">
+                                    {viewData.name}
+                                </div>
+                            </div>
+
+                            <div>
+                                <InputLabel value="Hak Akses (Permissions)" className="mb-2" />
+                                {viewData.permissions.length > 0 ? (
+                                    <div className="flex flex-wrap gap-2 p-4 bg-gray-50 rounded-xl border border-gray-200 max-h-60 overflow-y-auto custom-scrollbar">
+                                        {viewData.permissions.map((perm, idx) => (
+                                            <span
+                                                key={idx}
+                                                className="text-sm bg-green-50 text-green-700 px-3 py-1.5 rounded-md border border-green-200 capitalize"
+                                            >
+                                                {perm.name.replace(/_/g, " ")}
+                                            </span>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <div className="p-4 bg-gray-50 rounded-xl border border-gray-200 text-gray-500 italic text-sm">
+                                        Tidak ada hak akses yang diberikan.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="mt-8 flex justify-end">
+                        <SecondaryButton onClick={() => setShowViewModal(false)}>
+                            Tutup
+                        </SecondaryButton>
                     </div>
                 </div>
             </Modal>

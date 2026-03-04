@@ -4,9 +4,10 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, Link, useForm } from '@inertiajs/react';
+import { Head, useForm } from '@inertiajs/react';
 
-export default function Login({ status, canResetPassword }) {
+export default function Login({ status }) {
+    // canResetPassword sudah dihapus dari parameter karena tidak dipakai lagi
     const { data, setData, post, processing, errors, reset } = useForm({
         email: '',
         password: '',
@@ -31,16 +32,26 @@ export default function Login({ status, canResetPassword }) {
                 </div>
             )}
 
+            {/* Tambahan Judul & Sub-judul agar lebih profesional */}
+            <div className="mb-8 text-center">
+                <h2 className="text-2xl font-bold text-gray-800">
+                    Selamat Datang
+                </h2>
+                <p className="mt-2 text-sm text-gray-500">
+                    Sistem Pemantauan Curah Hujan KCP
+                </p>
+            </div>
+
             <form onSubmit={submit}>
                 <div>
-                    <InputLabel htmlFor="email" value="Email" />
+                    <InputLabel htmlFor="email" value="Alamat Email" />
 
                     <TextInput
                         id="email"
                         type="email"
                         name="email"
                         value={data.email}
-                        className="mt-1 block w-full"
+                        className="mt-1 block w-full py-2.5"
                         autoComplete="username"
                         isFocused={true}
                         onChange={(e) => setData('email', e.target.value)}
@@ -49,15 +60,15 @@ export default function Login({ status, canResetPassword }) {
                     <InputError message={errors.email} className="mt-2" />
                 </div>
 
-                <div className="mt-4">
-                    <InputLabel htmlFor="password" value="Password" />
+                <div className="mt-5">
+                    <InputLabel htmlFor="password" value="Kata Sandi" />
 
                     <TextInput
                         id="password"
                         type="password"
                         name="password"
                         value={data.password}
-                        className="mt-1 block w-full"
+                        className="mt-1 block w-full py-2.5"
                         autoComplete="current-password"
                         onChange={(e) => setData('password', e.target.value)}
                     />
@@ -65,33 +76,29 @@ export default function Login({ status, canResetPassword }) {
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                <div className="mt-4 block">
-                    <label className="flex items-center">
+                {/* <div className="block mt-5">
+                    <label className="flex items-center cursor-pointer">
                         <Checkbox
                             name="remember"
                             checked={data.remember}
                             onChange={(e) =>
                                 setData('remember', e.target.checked)
                             }
+                            className="text-indigo-600 focus:ring-indigo-500"
                         />
-                        <span className="ms-2 text-sm text-gray-600">
-                            Remember me
+                        <span className="text-sm text-gray-600 select-none ms-2">
+                            Ingat Saya
                         </span>
                     </label>
-                </div>
+                </div> */}
 
-                <div className="mt-4 flex items-center justify-end">
-                    {canResetPassword && (
-                        <Link
-                            href={route('password.request')}
-                            className="rounded-md text-sm text-gray-600 underline hover:text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
-                        >
-                            Forgot your password?
-                        </Link>
-                    )}
-
-                    <PrimaryButton className="ms-4" disabled={processing}>
-                        Log in
+                {/* Tombol Masuk dibuat lebar penuh (w-full) agar lebih responsif dan modern */}
+                <div className="mt-8">
+                    <PrimaryButton
+                        className="justify-center w-full py-3 text-base"
+                        disabled={processing}
+                    >
+                        Masuk
                     </PrimaryButton>
                 </div>
             </form>

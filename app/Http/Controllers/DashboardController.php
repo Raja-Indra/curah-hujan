@@ -13,13 +13,13 @@ class DashboardController extends Controller
     {
         // 1. Ambil Filter Waktu (Default: today)
         $filter = $request->input('filter', 'today');
-        
+
         // 2. Data Terakhir untuk Status Online
         $latest = Rainfall::latest('recorded_at')->first();
-        
+
         $isOnline = false;
         $lastSeen = '-';
-        
+
         if ($latest) {
             $lastTime = Carbon::parse($latest->recorded_at);
             // Toleransi 6 menit (Alat kirim tiap 5 menit + 1 menit delay jaringan)
@@ -29,7 +29,7 @@ class DashboardController extends Controller
 
         // 3. Summary Hari Ini
         $todayRainfall = Rainfall::whereDate('recorded_at', Carbon::today())->sum('rainfall');
-        
+
         // Menggunakan max() karena event_id dari ESP8266 sudah berupa angka counter harian (1, 2, 3...)
         $todayEvents = Rainfall::whereDate('recorded_at', Carbon::today())->max('event_id') ?? 0;
 

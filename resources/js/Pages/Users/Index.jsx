@@ -20,6 +20,7 @@ import {
     faIdCard,
     faCheckCircle,
     faEnvelope,
+    faEye,
 } from "@fortawesome/free-solid-svg-icons";
 
 export default function UserIndex({
@@ -30,6 +31,13 @@ export default function UserIndex({
     const [showModal, setShowModal] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [search, setSearch] = useState("");
+    const [showViewModal, setShowViewModal] = useState(false);
+    const [viewData, setViewData] = useState(null);
+
+    const openViewModal = (user) => {
+        setViewData(user);
+        setShowViewModal(true);
+    };
 
     const [confirmDialog, setConfirmDialog] = useState({
         isOpen: false,
@@ -287,6 +295,19 @@ export default function UserIndex({
                                                 <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                                                     {/* Ubah Disini: Menghapus class opacity-0 dan group-hover:opacity-100 */}
                                                     <div className="flex justify-end gap-3">
+                                                        <button
+                                                            onClick={() =>
+                                                                openViewModal(
+                                                                    user,
+                                                                )
+                                                            }
+                                                            className="text-blue-500 hover:text-blue-700 transition-colors bg-blue-50 p-2 rounded-lg hover:bg-blue-100 border border-transparent hover:border-blue-200"
+                                                            title="Lihat User"
+                                                        >
+                                                            <FontAwesomeIcon
+                                                                icon={faEye}
+                                                            />
+                                                        </button>
                                                         <button
                                                             onClick={() =>
                                                                 openEditModal(
@@ -612,6 +633,67 @@ export default function UserIndex({
                                   ? "Ya, Hapus!"
                                   : "Ya, Simpan!"}
                         </PrimaryButton>
+                    </div>
+                </div>
+            </Modal>
+
+            {/* MODAL VIEW USER */}
+            <Modal show={showViewModal} onClose={() => setShowViewModal(false)}>
+                <div className="p-6">
+                    <div className="flex items-center justify-between mb-6 border-b pb-4">
+                        <h2 className="text-lg font-bold text-gray-900">
+                            Detail Informasi User
+                        </h2>
+                        <button
+                            type="button"
+                            onClick={() => setShowViewModal(false)}
+                            className="text-gray-400 hover:text-gray-600"
+                        >
+                            <FontAwesomeIcon
+                                icon={faPlus}
+                                className="rotate-45"
+                                size="lg"
+                            />
+                        </button>
+                    </div>
+
+                    {viewData && (
+                        <div className="space-y-4">
+                            <div>
+                                <InputLabel value="Nama Lengkap" />
+                                <div className="mt-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-800">
+                                    {viewData.name}
+                                </div>
+                            </div>
+                            <div>
+                                <InputLabel value="Alamat Email" />
+                                <div className="mt-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-800">
+                                    {viewData.email}
+                                </div>
+                            </div>
+                            <div>
+                                <InputLabel value="Role / Jabatan" />
+                                <div className="mt-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-800 capitalize">
+                                    {viewData.roles.map((r) => r.name).join(", ")}
+                                </div>
+                            </div>
+                            <div>
+                                <InputLabel value="Tanggal Bergabung" />
+                                <div className="mt-1 p-3 bg-gray-50 border border-gray-200 rounded-lg text-gray-800">
+                                    {new Date(viewData.created_at).toLocaleDateString("id-ID", {
+                                        day: "numeric",
+                                        month: "long",
+                                        year: "numeric",
+                                    })}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
+                    <div className="mt-8 flex justify-end">
+                        <SecondaryButton onClick={() => setShowViewModal(false)}>
+                            Tutup
+                        </SecondaryButton>
                     </div>
                 </div>
             </Modal>
