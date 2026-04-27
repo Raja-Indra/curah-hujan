@@ -5,17 +5,26 @@ import {
     faChevronDown,
     faUser,
     faSignOutAlt,
+    faBars,
 } from "@fortawesome/free-solid-svg-icons";
 
-export default function Header() {
+export default function Header({ toggleSidebar }) {
     const { auth } = usePage().props;
     // State untuk mengatur buka/tutup menu
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
 
     return (
         <header className="relative z-20 flex items-center justify-between h-16 px-6 bg-white border-b border-gray-200 shadow-sm">
-            {/* Judul Halaman (Kiri) */}
+            {/* Judul Halaman & Tombol Mobile (Kiri) */}
             <div className="flex items-center">
+                {/* Tombol Hamburger untuk Mobile */}
+                <button 
+                    onClick={toggleSidebar}
+                    className="mr-4 text-gray-500 transition-colors hover:text-blue-600 focus:outline-none md:hidden"
+                >
+                    <FontAwesomeIcon icon={faBars} className="text-xl" />
+                </button>
+
                 <h2 className="hidden text-lg font-bold tracking-tight text-gray-800 md:block">
                     Sistem Monitoring Curah Hujan KCP
                 </h2>

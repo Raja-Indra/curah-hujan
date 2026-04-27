@@ -4,7 +4,7 @@ import InputLabel from '@/Components/InputLabel';
 import PrimaryButton from '@/Components/PrimaryButton';
 import TextInput from '@/Components/TextInput';
 import GuestLayout from '@/Layouts/GuestLayout';
-import { Head, useForm } from '@inertiajs/react';
+import { Head, useForm, Link } from '@inertiajs/react'; // Tambahkan import Link di sini
 
 export default function Login({ status }) {
     // canResetPassword sudah dihapus dari parameter karena tidak dipakai lagi
@@ -76,30 +76,22 @@ export default function Login({ status }) {
                     <InputError message={errors.password} className="mt-2" />
                 </div>
 
-                {/* <div className="block mt-5">
-                    <label className="flex items-center cursor-pointer">
-                        <Checkbox
-                            name="remember"
-                            checked={data.remember}
-                            onChange={(e) =>
-                                setData('remember', e.target.checked)
-                            }
-                            className="text-indigo-600 focus:ring-indigo-500"
-                        />
-                        <span className="text-sm text-gray-600 select-none ms-2">
-                            Ingat Saya
-                        </span>
-                    </label>
-                </div> */}
-
-                {/* Tombol Masuk dibuat lebar penuh (w-full) agar lebih responsif dan modern */}
-                <div className="mt-8">
+                {/* Wrapper untuk tombol menggunakan flex-col dan gap agar rapi */}
+                <div className="flex flex-col mt-8 space-y-3">
                     <PrimaryButton
                         className="justify-center w-full py-3 text-base"
                         disabled={processing}
                     >
                         Masuk
                     </PrimaryButton>
+
+                    {/* Tombol Lupa Password */}
+                    <Link
+                        href={route('password.request')}
+                        className="inline-flex items-center justify-center w-full py-3 text-base font-semibold tracking-widest text-gray-700 uppercase transition duration-150 ease-in-out bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 disabled:opacity-25"
+                    >
+                        Kata Sandi yang Terlupakan?
+                    </Link>
                 </div>
             </form>
         </GuestLayout>

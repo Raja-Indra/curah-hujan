@@ -11,11 +11,10 @@ export default defineConfig({
         react(),
     ],
     // server: {
-    //     host: '0.0.0.0', 
-    //     cors: true, 
-    //     // hmr: {
-    //     //     host: '192.168.137.1'
-    //     // },
-    //     // origin: 'http://192.168.137.1:5173',
+    //     host: '0.0.0.0', // Membuka akses jaringan agar bisa diakses HP
+    //     cors: true,
+    //     hmr: {
+    //         host: '192.168.137.1' // Memberi tahu browser/HP untuk mengambil file dari IP komputer Anda, bukan 127.0.0.1 atau 0.0.0.0
+    //     },
     // },
 });

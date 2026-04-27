@@ -5,10 +5,11 @@ import {
     faChartPie, 
     faCloudShowersHeavy, 
     faUsers, 
-    faUserShield
+    faUserShield,
+    faTimes
 } from '@fortawesome/free-solid-svg-icons';
 
-export default function Sidebar() {
+export default function Sidebar({ isOpen, setIsOpen }) {
     // 1. Ambil Props dari Inertia
     const { url, props } = usePage();
     
@@ -20,17 +21,28 @@ export default function Sidebar() {
 
     const isActive = (route) => url.startsWith(route);
 
+    const closeSidebar = () => {
+        if (setIsOpen) setIsOpen(false);
+    };
+
     return (
-        <aside className="w-64 bg-white text-gray-600 min-h-screen flex flex-col border-r border-gray-200 hidden md:flex transition-all duration-300 fixed left-0 top-0 z-30">
+        <aside className={`w-64 bg-white text-gray-600 min-h-screen flex flex-col border-r border-gray-200 transition-transform duration-300 fixed left-0 top-0 z-30 ${isOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
             
             {/* Logo Area */}
-            <div className="h-16 flex items-center justify-center border-b border-gray-100 bg-white">
+            <div className="h-16 flex items-center justify-between px-4 border-b border-gray-100 bg-white">
                 <div className="flex items-center space-x-2">
                     <FontAwesomeIcon icon={faCloudShowersHeavy} className="text-blue-600 text-xl" />
                     <h1 className="text-xl font-extrabold tracking-wider text-blue-600">
                         KINTAP<span className="text-gray-800">IOT</span>
                     </h1>
                 </div>
+                {/* Tombol Close untuk Mobile */}
+                <button 
+                    className="md:hidden text-gray-400 hover:text-red-500 focus:outline-none"
+                    onClick={closeSidebar}
+                >
+                    <FontAwesomeIcon icon={faTimes} className="text-xl" />
+                </button>
             </div>
 
             {/* Menu Items */}
@@ -38,13 +50,13 @@ export default function Sidebar() {
                 <div className="text-xs font-bold text-gray-400 uppercase mb-2 px-4">Main Menu</div>
                 
                 {can.view_dashboard && (
-                    <NavLink href="/dashboard" active={isActive('/dashboard')} icon={faChartPie}>
+                    <NavLink href="/dashboard" active={isActive('/dashboard')} icon={faChartPie} onClick={closeSidebar}>
                         Dashboard
                     </NavLink>
                 )}
                 
                 {can.view_rainfall && (
-                    <NavLink href="/rainfall-data" active={isActive('/rainfall-data')} icon={faCloudShowersHeavy}>
+                    <NavLink href="/rainfall-data" active={isActive('/rainfall-data')} icon={faCloudShowersHeavy} onClick={closeSidebar}>
                         Data Hujan
                     </NavLink>
                 )}
@@ -56,13 +68,13 @@ export default function Sidebar() {
                         </div>
 
                         {can.manage_users && (
-                            <NavLink href="/users" active={isActive('/users')} icon={faUsers}>
+                            <NavLink href="/users" active={isActive('/users')} icon={faUsers} onClick={closeSidebar}>
                                 Users
                             </NavLink>
                         )}
 
                         {can.manage_roles && (
-                            <NavLink href="/roles" active={isActive('/roles')} icon={faUserShield}>
+                            <NavLink href="/roles" active={isActive('/roles')} icon={faUserShield} onClick={closeSidebar}>
                                 Roles & Akses
                             </NavLink>
                         )}
@@ -78,10 +90,11 @@ export default function Sidebar() {
 }
 
 // Komponen NavLink
-function NavLink({ href, active, icon, children }) {
+function NavLink({ href, active, icon, children, onClick }) {
     return (
         <Link
             href={href}
+            onClick={onClick}
             className={`flex items-center px-4 py-3 text-sm font-medium rounded-xl transition-all duration-200 group ${
                 active 
                 ? 'bg-blue-50 text-blue-600 shadow-sm' 
